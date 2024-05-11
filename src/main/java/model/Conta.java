@@ -29,7 +29,10 @@ public class Conta {
         this.saldoDisponivelParaEmprestimo += valor;
     }
 
-    public void removerSaldoParaEmprestimo(Double valor) throws SaldoInvalidoException {
+    public void removerSaldoParaEmprestimo(Double valor) throws Exception {
+        if(true) {
+            throw new Exception("asdasdsa");
+        }
         // Exception
         if(this.saldoDisponivelParaEmprestimo < valor) {
             throw new SaldoInvalidoException("Saldo para emprestimo inferior ao solicitado");
