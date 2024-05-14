@@ -1,4 +1,4 @@
-package exception;
+package domain.exception;
 
 public class SaldoInvalidoException extends Exception {
     public SaldoInvalidoException(String message) {

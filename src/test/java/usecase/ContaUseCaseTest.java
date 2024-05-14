@@ -1,13 +1,16 @@
 package usecase;
 
-import model.Cliente;
-import model.Conta;
+import domain.gateway.ContaGateway;
+import domain.model.Cliente;
+import domain.model.Conta;
+import domain.usecase.ContaUseCase;
+import infra.gateway.ContaGatewayLocal;
 import org.junit.*;
 
 public class ContaUseCaseTest {
 
     private ContaUseCase contaUseCase;
-    private Conta conta1;
+    private ContaGateway contaGateway;
 
     // @BeforeClass - antes da classe ser instanciada
     @BeforeClass
@@ -22,9 +25,17 @@ public class ContaUseCaseTest {
     public void before() {
         System.out.println("before");
 
-        contaUseCase = new ContaUseCase();
+        contaGateway = new ContaGatewayLocal();
+        contaUseCase = new ContaUseCase(contaGateway);
+
         Cliente cliente1 = new Cliente("Ana", "111.111.111.11");
-        conta1 = new Conta("1", cliente1);
+        Conta conta1 = new Conta("1", cliente1);
+
+        Cliente cliente2 = new Cliente("Carla", "222.222.222.22");
+        Conta conta2 = new Conta("2", cliente2);
+
+        contaGateway.save(conta1);
+        contaGateway.save(conta2);
     }
 
     // @After
@@ -40,34 +51,35 @@ public class ContaUseCaseTest {
     }
 
     @Test
-    public void deveTransferirCorretamenteEntreDuasContas() {
+    public void deveTransferirCorretamenteEntreDuasContas() throws Exception {
+        // Mocks
+
         System.out.println("deveTransferirCorretamenteEntreDuasContas");
         // Given - Dado
-
-        contaUseCase.depositar(conta1, 100.0);
-
-        Cliente cliente2 = new Cliente("Carla", "222.222.222.22");
-        Conta conta2 = new Conta("2", cliente2);
+        contaUseCase.depositar("1", 100.0);
 
         // When - Quando
-        contaUseCase.transferir(conta1, conta2, 20.0);
+        contaUseCase.transferir("1", "2", 20.0);
 
         // Then - Entao
         // - Valor esperado - Valor atual
         Double valorEsperadoConta1 = 80.0;
-        Assert.assertEquals(valorEsperadoConta1, conta1.getSaldo());
+        Conta conta1DB = contaGateway.findById("1");
+        Assert.assertEquals(valorEsperadoConta1, conta1DB.getSaldo());
 
         Double valorEsperadoConta2 = 20.0;
-        Assert.assertEquals(valorEsperadoConta2, conta2.getSaldo());
+        Conta conta2DB = contaGateway.findById("2");
+        Assert.assertEquals(valorEsperadoConta2, conta2DB.getSaldo());
     }
 
     @Test
-    public void deveDepositarCorretamente() {
+    public void deveDepositarCorretamente() throws Exception {
         System.out.println("deveDepositarCorretamente");
         // Given -  Dado
 
         // When - Quando
-        contaUseCase.depositar(conta1, 10.0);
+        contaUseCase.depositar("1", 10.0);
+        Conta conta1 = contaGateway.findById("1");
 
         // Then
         Double valorEsperado = 10.0;
